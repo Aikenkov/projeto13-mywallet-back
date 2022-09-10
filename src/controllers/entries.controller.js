@@ -53,4 +53,27 @@ async function newEntrie(req, res) {
     }
 }
 
-export { newEntrie };
+async function getHistory(req, res) {
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+
+    if (!token) {
+        return res.sendStatus(401);
+    }
+
+    try {
+        const session = await db.collection("sessions").findOne({ token });
+        const history = await db
+            .collection("history")
+            .find({
+                userId: ObjectId(session.userId),
+            })
+            .toArray();
+
+        res.send(history);
+    } catch (error) {
+        return res.send(error.message);
+    }
+}
+
+export { newEntrie, getHistory };
