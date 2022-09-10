@@ -63,6 +63,11 @@ async function getHistory(req, res) {
 
     try {
         const session = await db.collection("sessions").findOne({ token });
+
+        if (session === null) {
+            return res.sendStatus(400);
+        }
+
         const history = await db
             .collection("history")
             .find({
