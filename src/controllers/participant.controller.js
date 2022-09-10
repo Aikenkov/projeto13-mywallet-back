@@ -108,7 +108,7 @@ async function signIn(req, res) {
             console.log(error.message);
             res.sendStatus(500);
         }
-        res.send({ token, userId: user._id });
+        res.send({ name: user.name, token });
     } else {
         res.status(400).send({ message: "Email ou senha incorretos" });
     }

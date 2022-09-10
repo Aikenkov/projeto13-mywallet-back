@@ -47,7 +47,7 @@ async function newEntrie(req, res) {
             date: now,
             type,
         });
-        return res.send(201);
+        return res.sendStatus(201);
     } catch (error) {
         return res.send(error.message);
     }
@@ -56,7 +56,7 @@ async function newEntrie(req, res) {
 async function getHistory(req, res) {
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
-
+    let balance = 0;
     if (!token) {
         return res.sendStatus(401);
     }
@@ -75,7 +75,17 @@ async function getHistory(req, res) {
             })
             .toArray();
 
-        res.send(history);
+        history.forEach((e) => {
+            let value = e.value.replace(",", ".");
+            value = Number(value);
+            if (e.type === "entrie") {
+                return (balance = (balance + value).toFixed(2));
+            } else {
+                return (balance = (balance - value).toFixed(2));
+            }
+        });
+        balance = balance.toString().replace(".", ",");
+        return res.send([{ balance, history: history }]);
     } catch (error) {
         return res.send(error.message);
     }
