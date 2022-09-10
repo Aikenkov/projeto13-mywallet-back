@@ -1,9 +1,8 @@
 import db from "../database/db.js";
 import joi from "joi";
-import dayjs from "dayjs";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-import { ObjectId } from "mongodb";
+//import { ObjectId } from "mongodb";
 
 const signupSchema = joi.object({
     name: joi.string().trim().min(1).max(30).required().strict(),
@@ -15,8 +14,6 @@ const signinSchema = joi.object({
     email: joi.string().required().email(),
     password: joi.string().min(4).required(),
 });
-
-const now = dayjs().format("DD/MM");
 
 async function signUp(req, res) {
     const { name, password, email } = req.body;
@@ -95,7 +92,7 @@ async function signIn(req, res) {
                 await db
                     .collection("sessions")
                     .updateOne({ userId: user._id }, { $set: { token } });
-                return res.send(token);
+                return res.send({ token, userId: user._id });
             }
         } catch (error) {
             console.log(error.message);
@@ -111,7 +108,7 @@ async function signIn(req, res) {
             console.log(error.message);
             res.sendStatus(500);
         }
-        res.send(token);
+        res.send({ token, userId: user._id });
     } else {
         res.status(400).send({ message: "Email ou senha incorretos" });
     }
