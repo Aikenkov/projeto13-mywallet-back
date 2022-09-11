@@ -10,11 +10,10 @@ const entriesSchema = joi.object({
 });
 
 async function newEntrie(req, res) {
-    const { value, description, type } = req.body;
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
     const now = dayjs().format("DD/MM");
-
+    const { value, description, type } = req.body;
     if (!token) {
         return res.sendStatus(401);
     }
@@ -29,7 +28,6 @@ async function newEntrie(req, res) {
     );
 
     let formatValue = Number(value).toFixed(2);
-    formatValue = formatValue.toString().replace(".", ",");
 
     if (validation.error) {
         const erros = validation.error.details.map(
@@ -56,11 +54,11 @@ async function newEntrie(req, res) {
 async function getHistory(req, res) {
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
-    let balance = 0;
+
     if (!token) {
         return res.sendStatus(401);
     }
-
+    let balance = 0;
     try {
         const session = await db.collection("sessions").findOne({ token });
 
@@ -76,15 +74,15 @@ async function getHistory(req, res) {
             .toArray();
 
         history.forEach((e) => {
-            let value = e.value.replace(",", ".");
-            value = Number(value);
+            console.log(e);
+            let value = Number(e.value);
             if (e.type === "entrie") {
-                return (balance = (balance + value).toFixed(2));
+                return (balance += value);
             } else {
-                return (balance = (balance - value).toFixed(2));
+                return (balance -= value);
             }
         });
-        balance = balance.toString().replace(".", ",");
+        balance = balance.toFixed(2);
         return res.send([{ balance, history: history }]);
     } catch (error) {
         return res.send(error.message);
