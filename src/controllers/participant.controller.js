@@ -1,45 +1,9 @@
 import db from "../database/db.js";
-import joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
 
-const signupSchema = joi.object({
-    name: joi.string().trim().min(1).max(30).required().strict(),
-    email: joi.string().required().email(),
-    password: joi.string().min(4).required(),
-});
-
-const signinSchema = joi.object({
-    email: joi.string().required().email(),
-    password: joi.string().min(4).required(),
-});
-
 async function signUp(req, res) {
     const { name, password, email } = req.body;
-
-    const validation = signupSchema.validate(
-        {
-            name,
-            email,
-            password,
-        },
-        { abortEarly: false }
-    );
-
-    if (validation.error) {
-        const erros = validation.error.details.map(
-            (details) => details.message
-        );
-        return res.status(422).send(erros);
-    }
-
-    const alreadyExists = await db
-        .collection("users")
-        .findOne({ email: email });
-
-    if (alreadyExists) {
-        return res.status(409).send({ message: "Email já existente" });
-    }
 
     const passwordHash = bcrypt.hashSync(password, 10);
 
@@ -55,27 +19,8 @@ async function signUp(req, res) {
 }
 
 async function signIn(req, res) {
-    const { email, password } = req.body;
-
-    const validation = signinSchema.validate(
-        {
-            email,
-            password,
-        },
-        { abortEarly: false }
-    );
-
-    if (validation.error) {
-        const erros = validation.error.details.map(
-            (details) => details.message
-        );
-        return res.status(422).send(erros);
-    }
-
-    const user = await db.collection("users").findOne({ email });
-    if (user === null) {
-        return res.status(400).send({ message: "Email ou senha incorretos" });
-    }
+    const { password } = req.body;
+    const user = res.locals.user;
 
     const passwordIsValid = bcrypt.compareSync(password, user.password);
 
