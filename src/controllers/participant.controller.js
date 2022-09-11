@@ -2,7 +2,6 @@ import db from "../database/db.js";
 import joi from "joi";
 import bcrypt from "bcrypt";
 import { v4 as uuid } from "uuid";
-//import { ObjectId } from "mongodb";
 
 const signupSchema = joi.object({
     name: joi.string().trim().min(1).max(30).required().strict(),
