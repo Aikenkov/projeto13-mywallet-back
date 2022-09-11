@@ -1,7 +1,6 @@
 import db from "../database/db.js";
 
 async function verifySession(req, res, next) {
-    // let db = await db();
     const { authorization } = req.headers;
     const token = authorization?.replace("Bearer ", "");
     if (!token) {
