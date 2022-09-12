@@ -36,7 +36,7 @@ async function signIn(req, res) {
                 await db
                     .collection("sessions")
                     .updateOne({ userId: user._id }, { $set: { token } });
-                return res.send({ token, userId: user._id });
+                return res.send({ name: user.name, token });
             }
         } catch (error) {
             console.log(error.message);
@@ -52,10 +52,22 @@ async function signIn(req, res) {
             console.log(error.message);
             res.sendStatus(500);
         }
-        res.send({ name: user.name, token });
+        return res.send({ name: user.name, token });
     } else {
-        res.status(400).send({ message: "Email ou senha incorretos" });
+        return res.status(400).send({ message: "Email ou senha incorretos" });
     }
 }
 
-export { signUp, signIn };
+async function endSession(req, res) {
+    const session = res.locals.session;
+    console.log(session);
+    try {
+        await db.collection("sessions").deleteOne({ token: session.token });
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(error.message);
+        res.sendStatus(500);
+    }
+}
+
+export { signUp, signIn, endSession };

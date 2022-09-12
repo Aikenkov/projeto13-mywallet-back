@@ -1,6 +1,7 @@
 import db from "../database/db.js";
 import dayjs from "dayjs";
 import { ObjectId } from "mongodb";
+import { hashSync } from "bcrypt";
 
 async function newEntrie(req, res) {
     const session = res.locals.session;
@@ -41,7 +42,7 @@ async function getHistory(req, res) {
             }
         });
         balance = balance.toFixed(2);
-        return res.send([{ balance, history: history }]);
+        return res.send({ balance, history });
     } catch (error) {
         return res.send(error.message);
     }
