@@ -60,7 +60,6 @@ async function signIn(req, res) {
 
 async function endSession(req, res) {
     const session = res.locals.session;
-    console.log(session);
     try {
         await db.collection("sessions").deleteOne({ token: session.token });
         return res.sendStatus(200);
